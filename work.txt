@@ -1,0 +1,84 @@
+file_path = "Sample.csv"
+    # Load the DataFrame
+    df = pd.read_csv(file_path)
+
+    # Initialize a list to store the result
+    new_data = []
+
+    # Extract values from each column (excluding Column 13)
+    cols1 = df["Column 1"].values
+    cols2 = df["Column 2"].values
+    cols3 = df["Column 3"].values
+    cols4 = df["Column 4"].values
+    cols5 = df["Column 5"].values
+    cols6 = df["Column 6"].values
+    cols7 = df["Column 7"].values
+    cols8 = df["Column 8"].values
+    cols9 = df["Column 9"].values
+    cols10 = df["Column 10"].values
+    cols11 = df["Column 11"].values
+    cols12 = df["Column 12"].values
+
+    # Debugging: Print first few rows to check if the data is loaded correctly
+    print("First few rows of the data:")
+    print(df.head())
+
+    # Iterate through the rows, checking for consecutive matches in Column 1
+    for i in range(1, len(cols1)):
+        # Check if the current row matches the previous one in Column 1
+        if cols1[i].strip() == cols1[i-1].strip():
+            # Debugging: Print the current and previous rows that match
+            print(f"Match found between rows {i-1} and {i}:")
+            print(f"Row {i-1} - {cols1[i-1]}, Row {i} - {cols1[i]}")
+
+            # Extract the data from the current row (excluding Column 13)
+            current_row = [
+                cols1[i],  # Name from Column 1
+                cols2[i], cols3[i], cols4[i], cols5[i], cols6[i], cols7[i],
+                cols8[i], cols9[i], cols10[i], cols11[i], cols12[i]
+            ]
+            
+            # Extract the previous row's data (excluding Column 13)
+            previous_row = [
+                cols2[i-1], cols3[i-1], cols4[i-1], cols5[i-1], cols6[i-1], cols7[i-1],
+                cols8[i-1], cols9[i-1], cols10[i-1], cols11[i-1], cols12[i-1]
+            ]
+            
+            # Fill the empty columns in the current row with the previous row's data
+            for j in range(1, 12):  # Columns 2 to 12 are indexed from 1 to 11 (ignoring Column 13)
+                if pd.isna(current_row[j]):  # Check if the current row's column is empty (NaN)
+                    current_row[j] = previous_row[j-1]  # Fill with the previous row's corresponding data
+
+            # Now check if there are extra values in the previous row that need to be appended
+            # Calculate how many extra values we need to append (values beyond Column 12)
+            extra_values = previous_row[11:]  # Values beyond Column 12
+            
+            # If there are more values, append them as new columns
+            if extra_values:
+                current_row.extend(extra_values)
+
+            # Append the current row (with previous row data inserted) to the new_data list
+            new_data.append(current_row)
+
+    # Debugging: Check how many rows have been added to new_data
+    print(f"Number of rows with matching data: {len(new_data)}")
+
+    # Convert the new data list into a DataFrame
+    if new_data:  # Check if there is any data to save
+        # Determine the number of columns needed
+        num_columns = 12 + len(extra_values)  # 12 original columns (ignoring Column 13) + extra columns
+
+        # Create column names dynamically (if new columns are added)
+        column_names = ['Column 1', 'Column 2', 'Column 3', 'Column 4', 'Column 5', 'Column 6', 'Column 7', 'Column 8', 'Column 9', 'Column 10', 'Column 11', 'Column 12']
+        if extra_values:
+            extra_column_names = [f'Column {i}' for i in range(14, 14 + len(extra_values))]
+            column_names.extend(extra_column_names)
+        
+        # Create DataFrame from the new_data list
+        new_df = pd.DataFrame(new_data, columns=column_names)
+        
+        # Save the new dataframe to a CSV file
+        new_df.to_csv('output_file.csv', index=False)
+        print("Data has been saved to 'output_file.csv'.")
+    else:
+        print("No matching rows found. CSV was not created.")
