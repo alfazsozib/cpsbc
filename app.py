@@ -57,7 +57,7 @@ def search():
     cols12 = df["Column13"].values
     cols13 = df["Column13"].values
 
-    for i in range(len(cols1))[2:]:
+    for i in range(len(cols1))[2:][start_page:end_page+1]:
         col1 = cols1[i]
         col2 = cols2[i]
         col3 = cols3[i]
@@ -119,7 +119,7 @@ def search():
                 result = 0
             title = titleBox[0].text.replace("arrow_forward",'').strip()
             try:
-                msp = titleBox[1].text.strip()
+                msp = titleBox[1].text.strip().replace("MSP  ",'')
             except:
                 msp = "No Result"
 
@@ -134,6 +134,9 @@ def search():
                     registrationClass  = data.text.replace("Registration class:","").strip()
                 if "Practice type:" in data.text:
                     practiceType = data.text.replace("Practice type:","").strip()
+                    if "-" in practiceType:
+                        practiceType = practiceType.split("-")[1].strip()
+
                 if "Address:" in data.text:
                     address = data.text.replace("Address:","").strip()
                     pattern = r"^(.*?),\s*(.*?),\s*([A-Z]{2}),\s*([A-Z0-9 ]{3,7}),\s*(.*)$"
@@ -306,13 +309,16 @@ def readDataSecond():
             
     
 if __name__=="__main__":
-    # driver = driver_connect()
-    # url = "https://www.cpsbc.ca/public/registrant-directory/"  
-    # driver.get(url)
-    # time.sleep(5)
-    # driver.find_element(By.ID,'edit-ps-submit').click()
-    # time.sleep(10)
-    # dataList = []
-    readDataFirst()
+    start_page = int(input("Enter starting number and press enter: "))
+    end_page = int(input("Enter End Number and press enter: "))
+    driver = driver_connect()
+    url = "https://www.cpsbc.ca/public/registrant-directory/"  
+    driver.get(url)
+    time.sleep(5)
+    driver.find_element(By.ID,'edit-ps-submit').click()
+    time.sleep(10)
+    dataList = []
+    # readDataFirst()
     # readDataSecond()
-    # search()
+    search()
+
